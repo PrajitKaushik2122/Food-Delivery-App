@@ -1,6 +1,11 @@
 package com.prajit.foodiesDelivery.service;
 
+import com.prajit.foodiesDelivery.entity.FoodEntity;
+import com.prajit.foodiesDelivery.io.FoodRequest;
+import com.prajit.foodiesDelivery.io.FoodResponse;
+import com.prajit.foodiesDelivery.repository.FoodRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -16,21 +21,24 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import java.util.UUID;
 
 
-@AllArgsConstructor
 @Service
 public class FoodServiceImpl implements FoodService{
 
-    private final S3Client s3Client;
+    @Autowired
+    private S3Client s3Client;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
+
+    @Autowired
+    private FoodRepository foodRepository;
 
     @Override
     public String uploadFile(MultipartFile file) {
         String filenameExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);
         String key = UUID.randomUUID().toString()+"."+filenameExtension;
         try{
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(key).acl("public-raed").contentType(file.getContentType()).build();
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(key).contentType(file.getContentType()).build();
             PutObjectResponse response = s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
 
             if(response.sdkHttpResponse().isSuccessful()){
@@ -41,7 +49,37 @@ public class FoodServiceImpl implements FoodService{
             }
 
         } catch (Exception e) {
+            System.out.println(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "an error occured while uploading the file");
         }
+    }
+
+    @Override
+    public FoodResponse addFood(FoodRequest request, MultipartFile file) {
+        FoodEntity newfoodEntity = convertToEntity(request);
+        String imageUrl = uploadFile(file);
+        newfoodEntity.setImageUrl(imageUrl);
+        newfoodEntity = foodRepository.save(newfoodEntity);
+        return convertToResponse(newfoodEntity);
+    }
+
+    private FoodEntity convertToEntity(FoodRequest req){
+        return FoodEntity.builder()
+                .name(req.getName())
+                .category(req.getCategory())
+                .price(req.getPrice())
+                .description(req.getDescription())
+                .build();
+    }
+
+    private FoodResponse convertToResponse(FoodEntity entity){
+         return FoodResponse.builder()
+                 .id(entity.getId())
+                 .name(entity.getName())
+                 .price(entity.getPrice())
+                 .description(entity.getDescription())
+                 .imageUrl(entity.getImageUrl())
+                 .category(entity.getCategory())
+                 .build();
     }
 }

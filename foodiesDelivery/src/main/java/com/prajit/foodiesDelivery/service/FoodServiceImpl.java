@@ -18,7 +18,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -61,6 +63,12 @@ public class FoodServiceImpl implements FoodService{
         newfoodEntity.setImageUrl(imageUrl);
         newfoodEntity = foodRepository.save(newfoodEntity);
         return convertToResponse(newfoodEntity);
+    }
+
+    @Override
+    public List<FoodResponse> readFoods() {
+        List<FoodEntity> dbentries = foodRepository.findAll();
+        return dbentries.stream().map(obj->convertToResponse(obj)).collect(Collectors.toList());
     }
 
     private FoodEntity convertToEntity(FoodRequest req){

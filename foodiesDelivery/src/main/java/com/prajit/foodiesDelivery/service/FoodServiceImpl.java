@@ -5,6 +5,7 @@ import com.prajit.foodiesDelivery.io.FoodRequest;
 import com.prajit.foodiesDelivery.io.FoodResponse;
 import com.prajit.foodiesDelivery.repository.FoodRepository;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -67,9 +68,16 @@ public class FoodServiceImpl implements FoodService{
 
     @Override
     public List<FoodResponse> readFoods() {
-        List<FoodEntity> dbentries = foodRepository.findAll();
-        return dbentries.stream().map(obj->convertToResponse(obj)).collect(Collectors.toList());
+        List<FoodEntity> foods = foodRepository.findAll();
+        return foods.stream().map(obj->convertToResponse(obj)).collect(Collectors.toList());
     }
+
+    @Override
+    public FoodResponse readFood(String id) {
+        FoodEntity food = foodRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dish not found for given Id"));
+        return convertToResponse(food);
+    }
+
 
     private FoodEntity convertToEntity(FoodRequest req){
         return FoodEntity.builder()

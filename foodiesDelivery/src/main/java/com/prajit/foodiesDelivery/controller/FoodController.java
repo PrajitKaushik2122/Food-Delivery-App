@@ -43,5 +43,10 @@ public class FoodController {
         return foodService.readFoods();
     }
 
+    @GetMapping("/get")
+    public FoodResponse getFood(@RequestHeader("id") String id){
+        return foodService.readFood(id);
+    }
+
 
 }

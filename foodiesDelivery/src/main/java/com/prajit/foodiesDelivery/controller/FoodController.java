@@ -48,5 +48,10 @@ public class FoodController {
         return foodService.readFood(id);
     }
 
+    @DeleteMapping("/delete")
+    public void deleteFood(@RequestHeader("id") String id){
+        foodService.deleteFood(id);
+    }
+
 
 }

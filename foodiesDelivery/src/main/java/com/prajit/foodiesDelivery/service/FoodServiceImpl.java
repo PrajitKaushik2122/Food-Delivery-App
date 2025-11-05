@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
@@ -76,6 +77,30 @@ public class FoodServiceImpl implements FoodService{
     public FoodResponse readFood(String id) {
         FoodEntity food = foodRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dish not found for given Id"));
         return convertToResponse(food);
+    }
+
+    @Override
+    public boolean deleteFile(String fileName) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+        s3Client.deleteObject(deleteObjectRequest);
+        return true;
+    }
+
+    @Override
+    public void deleteFood(String id) {
+        FoodResponse foodResponse = readFood(id);
+        String imageUrl = foodResponse.getImageUrl();
+        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/")+1);
+        boolean isfiledeleted = deleteFile(fileName);
+        if(isfiledeleted) {
+            foodRepository.deleteById(id);
+        }
+        else{
+            throw new RuntimeException("file not deleted");
+        }
     }
 
 

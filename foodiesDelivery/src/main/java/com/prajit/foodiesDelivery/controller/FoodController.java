@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/dishes")
+@CrossOrigin("*")
 @AllArgsConstructor
 public class FoodController {
 
@@ -44,11 +45,13 @@ public class FoodController {
     }
 
     @GetMapping("/get")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public FoodResponse getFood(@RequestHeader("id") String id){
-        return foodService.readFood(id);
+            return foodService.readFood(id);
     }
 
     @DeleteMapping("/delete")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public void deleteFood(@RequestHeader("id") String id){
         foodService.deleteFood(id);
     }

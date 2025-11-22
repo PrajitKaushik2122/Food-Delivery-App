@@ -30,6 +30,7 @@ public class AuthController {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authreq.getEmail(),authreq.getPassword()));
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authreq.getEmail());
         final String token = jwtUtil.generateToken(userDetails);
+        System.out.println("here here here");
         return new AuthenticationResponse(token,authreq.getEmail());
     }
 }

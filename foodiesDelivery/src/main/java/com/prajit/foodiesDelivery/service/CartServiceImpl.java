@@ -39,6 +39,26 @@ public class CartServiceImpl implements CartService{
         return convertToCartResponse(entity);
     }
 
+    @Override
+    public void clearCart() {
+        String loggedInUser = userService.findByUserId();
+        cartRepository.deleteByUserId(loggedInUser);
+    }
+
+    @Override
+    public CartResponse removeFromCart(CartRequest request) {
+        String loggedInUser = userService.findByUserId();
+        Optional<CartEntity> cartOptional = cartRepository.findByUserId(loggedInUser);
+        CartEntity cart = cartOptional.orElseThrow(()-> new RuntimeException("cart is empty"));
+        Map<String,Integer> items = cart.getItems();
+        if(items.containsKey(request.getFoodId())){
+            items.put(request.getFoodId(), items.get(request.getFoodId())-1);
+            if(items.get(request.getFoodId())==0) items.remove(request.getFoodId());
+            cart = cartRepository.save(cart);
+        }
+        return convertToCartResponse(cart);
+    }
+
     private CartResponse convertToCartResponse(CartEntity cart){
         return CartResponse.builder()
                 .id(cart.getId())

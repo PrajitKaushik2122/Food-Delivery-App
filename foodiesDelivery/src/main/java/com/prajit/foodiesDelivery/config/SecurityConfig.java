@@ -34,8 +34,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception{
@@ -64,7 +62,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
-                frontendUrl
+                "https://lucent-rabanadas-872b8b.netlify.app/"
         ));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");

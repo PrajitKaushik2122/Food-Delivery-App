@@ -70,7 +70,8 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "https://lucent-rabanadas-872b8b.netlify.app" // remove trailing slash
+                "https://foodiesdeliveryapp.netlify.app/",
+                "https://adminpanelfoodiesdelivery.netlify.app/"
         ));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
